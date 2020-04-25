@@ -11,7 +11,7 @@ from tensorflow.keras.optimizers import Adam
 from MLP import MLP
 from ReplayBuffer import ReplayBuffer 
 
-
+# TODO: add saving and loading from YAML
 class DQN:
     def __init__(self,
                  num_actions: int,
@@ -22,7 +22,8 @@ class DQN:
                  eps_decrement: float = 0.99,
                  eps_minimum: float = 0.01,
                  memory_size: int = 20_000,
-                 min_memory: int = 3000):
+                 min_memory: int = 3000,
+                 seed: int = 42):
         """
         Deep Q Learning Agent
         with Multilayer Perceptron Q Network.
@@ -53,8 +54,13 @@ class DQN:
         min_memory: int
             Minimum number of past steps in the ReplayBuffer
             before agent starts learning.
+        seed: int
+            Random state for RNG.
 
         """
+        random.seed(seed)
+        tf.random.set_seed(seed)
+
         self._memory = ReplayBuffer(memory_size)
         self._net = MLP(num_actions, mlp_hidden_units)
         self._optimizer = Adam(learning_rate)

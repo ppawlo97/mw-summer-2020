@@ -1,3 +1,6 @@
+"""
+Multilayer Perceptron
+"""
 from typing import Tuple
 
 import tensorflow as tf
@@ -13,8 +16,11 @@ class MLP(tf.keras.Model):
         super(MLP, self).__init__(name=name, **kwargs)
 
         if not hidden_units:
-            raise Exception("MLP must have at least one hidden layer!")
+            raise ValueError("MLP must have at least one hidden layer!")
         
+        if num_classes < 1:
+            raise ValueError("MLP must have at least one class!")
+
         self.num_hidden = len(hidden_units)
 
         for ix, units in enumerate(hidden_units, start=1):

@@ -1,3 +1,11 @@
+"""
+Experience Replay for Deep Q Agents.
+
+References
+----------
+    1. https://arxiv.org/abs/1712.01275
+
+"""
 import random
 from collections import deque
 from typing import Any
@@ -17,6 +25,9 @@ class ReplayBuffer:
             Maximum memory size.
 
         """
+        if max_size < 1:
+            raise ValueError("Memory size must be a positive integer!")
+
         self.memory = deque(maxlen=max_size)
 
 
