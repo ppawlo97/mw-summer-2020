@@ -1,17 +1,21 @@
 import random
+from pathlib import Path
 from typing import Any
+from typing import Dict
 from typing import List
 from typing import Tuple
 from typing import Union
 
 import tensorflow as tf
+import yaml
+from absl import logging
 from tensorflow.keras.losses import mean_squared_error
 from tensorflow.keras.optimizers import Adam
 
-from MLP import MLP
-from ReplayBuffer import ReplayBuffer 
+from agent.MLP import MLP
+from agent.ReplayBuffer import ReplayBuffer 
 
-# TODO: add saving and loading from YAML
+
 class DQN:
     def __init__(self,
                  num_actions: int,
@@ -58,19 +62,27 @@ class DQN:
             Random state for RNG.
 
         """
-        random.seed(seed)
-        tf.random.set_seed(seed)
-
-        self._memory = ReplayBuffer(memory_size)
-        self._net = MLP(num_actions, mlp_hidden_units)
-        self._optimizer = Adam(learning_rate)
-
-        self._min_memory = min_memory
+        self._num_actions = num_actions
+        self._mlp_hidden_units = mlp_hidden_units
+        self._learning_rate = learning_rate
         self._discount_factor = discount_factor
-        self._action_space = list(range(num_actions))
+        self._initial_eps = epsilon # for saving
         self._eps = {"epsilon": epsilon,
                      "eps_decrement": eps_decrement,
                      "eps_minimum": eps_minimum}
+        self._memory_size = memory_size
+        self._min_memory = min_memory
+        self._seed = seed
+        
+        random.seed(self._seed)
+        tf.random.set_seed(self._seed)
+
+        self._memory = ReplayBuffer(self._memory_size)
+        self._net = MLP(self._num_actions, self._mlp_hidden_units)
+        self._optimizer = Adam(self._learning_rate)
+
+        self._ckpt = tf.train.Checkpoint(optimizer=self._optimizer,
+                                         model=self._net)
 
 
     def extend_memory(self,
@@ -128,7 +140,7 @@ class DQN:
         
         """
         if random.random() < self._eps["epsilon"]:
-            action = random.choice(self._action_space)
+            action = random.randrange(self._num_actions)
         else:
             state = tf.expand_dims(state, axis=0)
             action = tf.argmax(self._net(state),
@@ -155,7 +167,7 @@ class DQN:
         states = tf.stack(batch["state"], axis=0)
         next_states = tf.stack(batch["next_state"], axis=0)
         actions = tf.one_hot(indices=batch["action"],
-                             depth=len(self._action_space))
+                             depth=self._num_actions)
         
         q_values_next = tf.reduce_max(self._net(next_states), axis=-1)
         q_target = (tf.convert_to_tensor(batch["reward"]) +
@@ -173,3 +185,107 @@ class DQN:
 
         if self._eps["eps_minimum"] < self._eps["epsilon"]:
             self._eps["epsilon"] *= self._eps["eps_decrement"]
+
+    
+    def save(self, save_dir: str) -> str:
+        """
+        Saves the agent along with model checkpoint and
+        configuration parameters.
+
+        Parameters
+        ----------
+        save_dir: str
+            Directory where to save the agent.
+
+        Returns
+        -------
+        Path to the folder with saved model.
+
+        """
+        save_dir = Path(save_dir)
+        if not save_dir.exists() or not save_dir.is_dir():
+            save_dir.mkdir(parents=True)
+        else:
+            logging.warning(f"Overwriting existing directory {save_dir} !")
+
+        model_dir = save_dir.joinpath("dqn")
+        if not model_dir.exists() or not model_dir.is_dir():
+            model_dir.mkdir()
+        else:
+            logging.warning(f"Overwriting existing directory {model_dir} !")
+
+        params_path = model_dir.joinpath("params.yml")
+        logging.info(f"Saving DQN's params to {params_path}")
+        self._to_yaml(params_path)
+        
+
+        model_path = model_dir.joinpath("mlp")
+        logging.info(f"Saving Q Net checkpoint to {model_path}")
+        self._ckpt.save(model_path)
+
+        return model_dir.as_posix()
+
+
+    def _to_yaml(self, save_path: Path):
+        """
+        Dumps DQN parameters to YAML.
+        
+        Parameters
+        ----------
+        save_path: Path
+            Where to save the YAML file.
+        
+        """
+        params = self.get_config()
+        
+        with open(save_path, "w") as stream:
+            yaml.dump(params, stream)
+
+
+    @classmethod
+    def load(cls, model_dir: str) -> "DQN":
+        """
+        Loads trained DQN.
+
+        Parameters
+        ----------
+        model_dir: str
+            Directory with DQN's configuration
+            and Q Network checkpoint.
+
+        Returns
+        -------
+        DQN
+
+        """
+        model_dir = Path(model_dir)
+        if not model_dir.exists() or not model_dir.is_dir():
+            raise FileNotFoundError(f"{model_dir} doesn't exist or isn't a directory!")
+
+        params_path = model_dir.joinpath("params.yml")
+        with open(params_path, "r") as stream:
+            params = yaml.full_load(stream)
+
+        latest_ckpt = tf.train.latest_checkpoint(model_dir)
+
+        logging.info(f"Loading DQN from {model_dir}.")
+        dqn = cls(**params)
+        dqn._ckpt.restore(latest_ckpt).expect_partial()
+
+        return dqn
+
+    
+    def get_config(self) -> Dict[str, Any]:
+        """Gets DQN's config."""
+        config = {
+            "num_actions": self._num_actions,
+            "mlp_hidden_units": self._mlp_hidden_units,
+            "learning_rate": self._learning_rate,
+            "discount_factor": self._discount_factor,
+            "memory_size": self._memory_size,
+            "min_memory": self._min_memory,
+            "seed": self._seed
+        }
+        config.update(self._eps)
+        config["epsilon"] = self._initial_eps
+        return config
