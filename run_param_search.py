@@ -17,6 +17,8 @@ PARAMS = {"survived_step_reward": [0.0, 2, 10],
           "min_memory": [0, 5000, 10_000],
           "batch_size": [16, 64, 128]}
 
+SEEDS = [42, 12, 2020]
+
 
 def main(argv=None):
     # run on 500 episodes by default
@@ -24,15 +26,16 @@ def main(argv=None):
     script_start = time()
     for key in PARAMS:
         for param in PARAMS[key]:
-            cmd = f"python run_flappybird.py --nodisplay_screen --summary_save_path='{LOGS_PATH}' --{key}={param}"
-            logging.info(f"Starting run no. {i}...")
-            start = time()
-            subprocess.run(cmd, shell=True)
+            for seed in SEEDS:
+                cmd = f"python run_flappybird.py --nodisplay_screen --summary_save_path='{LOGS_PATH}' --{key}={param} --seed={seed}"
+                logging.info(f"Starting run no. {i}...")
+                start = time()
+                subprocess.run(cmd, shell=True)
+                
+                time_passed = (time() - start) / 60
+                logging.info(f"Finished in {time_passed:.2f} minutes...")
+                i += 1
             
-            time_passed = (time() - start) / 60
-            logging.info(f"Finished in {time_passed:.2f} minutes...")
-            i += 1
-        
         logging.info(f"Done checking {key}...")
 
     total_time = (time() - script_start) / 60 

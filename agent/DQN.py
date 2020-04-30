@@ -1,3 +1,12 @@
+"""
+Deep Q learning agent, that learns only through the interaction with
+environment. Inherently designed only for discrete action spaces.
+
+References
+----------
+    [1] https://deepmind.com/research/publications/human-level-control-through-deep-reinforcement-learning
+
+"""
 import random
 from pathlib import Path
 from typing import Any

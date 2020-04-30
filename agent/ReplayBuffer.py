@@ -3,7 +3,7 @@ Experience Replay for Deep Q Agents.
 
 References
 ----------
-    1. https://arxiv.org/abs/1712.01275
+    [1] https://arxiv.org/abs/1712.01275
 
 """
 import random
