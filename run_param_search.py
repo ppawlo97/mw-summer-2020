@@ -9,7 +9,7 @@ from absl import logging
 LOGS_PATH = "./params_search.jsonl"
 
 PARAMS = {"survived_step_reward": [0.0, 2, 10],
-          "mlp_hidden_units": ["128 128", "128 64 32", "256 128 64"],
+          "mlp_hidden_units": ["'128 128'", "'128 64 32'", "'256 128 64'"],
           "learning_rate": [0.005, 0.0005, 0.000005],
           "discount_factor": [0.5, 0.8, 0.99],
           "epsilon": [0.3, 0.5, 1],
