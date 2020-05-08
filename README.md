@@ -24,13 +24,20 @@
   * [Prerequisites](#prerequisites)
   * [Installation](#installation)
 * [Usage](#usage)
+* [Report](#report)
+* [Presentation](#presentation)
+* [References](#references)
 * [License](#license)
 
 
 
 ## About the Project
 
-> TBD...
+The purpose of this project was to implement a Deep Q Learning Agent, analize it's performance on [PLE's FlappyBird](https://pygame-learning-environment.readthedocs.io/en/latest/user/games/flappybird.html) environment given various hyperparameters setups and present the final work to the course group. 
+
+Algorithm implementation with brief descriptions in the docstrings and appropriate references can be found in the `agent` folder. In order to run the model follow the instuctions from [Getting Started](#getting-started) and [Usage](#usage) sections.
+
+Results of the analysis alongside with the theory behind the Deep Q Learning were outlined in a separate report file. See [Report](#report) section for more details.
 
 
 
@@ -89,6 +96,33 @@ python run_flappybird.py --help
 ```sh
 python run_flappybird.py --episodes=300
 ```
+
+
+
+## Report
+
+The report in the form of Jupyter Notebook with dependent data files was put inside the `report` folder. Since the conducted analysis demanded specific libraries, additional requirements have been listed inside `Report_MW.ipynb` in order to keep the implementation and report dependecies separate.
+
+To reproduce the data used throughout the hyperparameter analysis, run:
+```sh
+python run_param_search.py
+```
+from the project's main directory.
+
+**Please note:**
+Even though the code and the docstrings have been written in English in order to stay compliant with the universally accepted standards, the report with mild exceptions has been written in Polish, since the entire course was conducted in Polish.    
+
+
+
+## Presentation
+
+> TBD...
+
+
+
+## References
+
+[1]  Mnih, V., Kavukcuoglu, K., Silver, D. et al. **Human-level control through deep reinforcement learning.** Nature 518, 529–533 (2015). https://doi.org/10.1038/nature14236
 
 
 
