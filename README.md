@@ -9,7 +9,7 @@
   <h3 align="center">Final project for Multiagent Learning course at SGH.</h3>
 
   <p align="center">
-    Below find the information on the setup, reference links and creator notes.
+    Below find the information on setup, reference links and creator notes.
     <br />
     <br />
   </p>
@@ -38,6 +38,8 @@ The purpose of this project was to implement a Deep Q Learning Agent, analize it
 Algorithm implementation with brief descriptions in the docstrings and appropriate references can be found in the `agent` folder. In order to run the model follow the instuctions from [Getting Started](#getting-started) and [Usage](#usage) sections.
 
 Results of the analysis alongside with the theory behind the Deep Q Learning were outlined in a separate report file. See [Report](#report) section for more details.
+
+[Presentation](#presentation) section provides information regarding utilized materials during the in-class presentation.
 
 
 
@@ -116,7 +118,10 @@ Even though the code and the docstrings have been written in English in order to
 
 ## Presentation
 
-> TBD...
+A PDF file containing the slides as well as other materials used during the presentation (dependent data and pretrained DQN) can be found in the `presentation` folder.
+
+**Please note:**
+Similarly to the report, majority of the presentation was prepared and conducted in Polish for the reason stated in the [Report](#report) section.
 
 
 
